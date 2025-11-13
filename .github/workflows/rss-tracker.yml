@@ -1,0 +1,37 @@
+name: RSS Drainer
+
+on:
+  schedule:
+    # Run every 15 minutes
+    - cron: '*/15 * * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  track-rss-feeds:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build TypeScript
+        run: npm run build
+
+      - name: Run RSS Drainer
+        env:
+          GIST_ID: ${{ vars.GIST_ID }}
+          GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
+          DISCORD_WEBHOOK_AI: ${{ secrets.DISCORD_WEBHOOK_AI }}
+          DISCORD_WEBHOOK_WORLDNEWS: ${{ secrets.DISCORD_WEBHOOK_WORLDNEWS }}
+          DISCORD_WEBHOOK_YOUTUBE: ${{ secrets.DISCORD_WEBHOOK_YOUTUBE }}
+        run: npm start
