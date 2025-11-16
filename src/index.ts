@@ -115,7 +115,14 @@ async function main() {
           );
 
           // Mark all existing items as posted without actually posting them
+          // But skip YouTube Shorts entirely
           for (const item of feedItems) {
+            // Skip YouTube Shorts - don't even track them
+            if (item.link && item.link.includes('/shorts/')) {
+              console.log(`Skipping YouTube Short during initialization: ${item.title}`);
+              continue;
+            }
+
             if (item.guid) {
               tracker.markAsPosted(item.guid);
               totalInitialized++;
@@ -124,10 +131,16 @@ async function main() {
 
           console.log(`✅ Feed initialized. Future new items will be posted to Discord.`);
         } else {
-          // Filter out already-posted items
+          // Filter out already-posted items and YouTube Shorts
           for (const item of feedItems) {
             if (!item.guid) {
               console.log(`Skipping item without guid: ${item.title}`);
+              continue;
+            }
+
+            // Skip YouTube Shorts
+            if (item.link && item.link.includes('/shorts/')) {
+              console.log(`Skipping YouTube Short: ${item.title}`);
               continue;
             }
 
