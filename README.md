@@ -91,6 +91,15 @@ The category name will be converted to the webhook environment variable name. Fo
 
 - https://raw.githubusercontent.com/Olshansk/rss-feeds/main/feeds/feed_anthropic_news.xml
 - https://raw.githubusercontent.com/Olshansk/rss-feeds/main/feeds/feed_anthropic_engineering.xml
+- https://raw.githubusercontent.com/Olshansk/rss-feeds/main/feeds/feed_anthropic_research.xml
+- https://raw.githubusercontent.com/Olshansk/rss-feeds/main/feeds/feed_anthropic_changelog_claude_code.xml
+- https://raw.githubusercontent.com/Olshansk/rss-feeds/main/feeds/feed_openai_research.xml
+- https://raw.githubusercontent.com/Olshansk/rss-feeds/main/feeds/feed_ollama.xml
+- https://raw.githubusercontent.com/Olshansk/rss-feeds/main/feeds/feed_paulgraham.xml
+- https://raw.githubusercontent.com/Olshansk/rss-feeds/main/feeds/feed_blogsurgeai.xml
+- https://raw.githubusercontent.com/Olshansk/rss-feeds/main/feeds/feed_xainews.xml
+- https://raw.githubusercontent.com/Olshansk/rss-feeds/main/feeds/feed_chanderramesh.xml
+- https://raw.githubusercontent.com/Olshansk/rss-feeds/main/feeds/feed_thinkingmachines.xml
 
 ## WorldNews
 
