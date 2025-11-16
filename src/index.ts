@@ -89,37 +89,57 @@ async function main() {
         continue;
       }
 
-      // Check if this is a new feed (no items from this feed tracked yet)
-      const trackedItemsFromFeed = allItems.filter(item => item.guid && tracker.isPosted(item.guid));
-      const isNewFeed = trackedItemsFromFeed.length === 0 && allItems.length > 0;
-
-      if (isNewFeed) {
-        console.log(`⚠️  New feed detected for ${category}! Initializing without posting...`);
-        console.log(`Marking ${allItems.length} existing items as already seen to avoid spam.`);
-
-        // Mark all existing items as posted without actually posting them
-        for (const item of allItems) {
-          if (item.guid) {
-            tracker.markAsPosted(item.guid);
-          }
+      // Group items by feed URL to detect new feeds individually
+      const itemsByFeed = new Map<string, RSSItem[]>();
+      for (const item of allItems) {
+        const feedKey = item.feedUrl || 'unknown';
+        if (!itemsByFeed.has(feedKey)) {
+          itemsByFeed.set(feedKey, []);
         }
-
-        console.log(`✅ Feed initialized. Future new items will be posted to Discord.`);
-        stats.categoriesProcessed++;
-        continue;
+        itemsByFeed.get(feedKey)!.push(item);
       }
 
-      // Filter out already-posted items
       const newItems: RSSItem[] = [];
-      for (const item of allItems) {
-        if (!item.guid) {
-          console.log(`Skipping item without guid: ${item.title}`);
-          continue;
-        }
+      let totalInitialized = 0;
 
-        if (!tracker.isPosted(item.guid)) {
-          newItems.push(item);
+      // Process each feed group
+      for (const [feedKey, feedItems] of itemsByFeed) {
+        const trackedItemsFromFeed = feedItems.filter(
+          (item) => item.guid && tracker.isPosted(item.guid)
+        );
+        const isNewFeed = trackedItemsFromFeed.length === 0 && feedItems.length > 0;
+
+        if (isNewFeed) {
+          console.log(
+            `⚠️  New feed detected (${feedKey})! Initializing ${feedItems.length} items without posting...`
+          );
+
+          // Mark all existing items as posted without actually posting them
+          for (const item of feedItems) {
+            if (item.guid) {
+              tracker.markAsPosted(item.guid);
+              totalInitialized++;
+            }
+          }
+
+          console.log(`✅ Feed initialized. Future new items will be posted to Discord.`);
+        } else {
+          // Filter out already-posted items
+          for (const item of feedItems) {
+            if (!item.guid) {
+              console.log(`Skipping item without guid: ${item.title}`);
+              continue;
+            }
+
+            if (!tracker.isPosted(item.guid)) {
+              newItems.push(item);
+            }
+          }
         }
+      }
+
+      if (totalInitialized > 0) {
+        console.log(`Initialized ${totalInitialized} items from new feeds in ${category}`);
       }
 
       console.log(

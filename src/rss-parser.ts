@@ -5,6 +5,7 @@ export interface RSSItem {
   link: string;
   guid: string;
   pubDate?: string;
+  feedUrl?: string; // Source feed URL
 }
 
 const parser = new Parser({
@@ -36,6 +37,7 @@ export async function parseFeed(feedUrl: string): Promise<RSSItem[]> {
         link: item.link || '',
         guid: guid,
         pubDate: item.pubDate || item.isoDate,
+        feedUrl: feedUrl, // Track which feed this item came from
       };
     });
 
