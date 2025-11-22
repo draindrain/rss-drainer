@@ -42,8 +42,41 @@ export class TrackingManager {
 
       const file = response.data.files[TRACKING_FILENAME];
       if (file && file.content) {
-        this.trackingData = JSON.parse(file.content);
-        console.log(`Loaded ${Object.keys(this.trackingData).length} tracked items`);
+        try {
+          const parsed = JSON.parse(file.content);
+
+          // Validate that it's an object with string keys and number values
+          if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+            console.warn('Invalid tracking data format, starting fresh');
+            this.trackingData = {};
+            return;
+          }
+
+          // Sanitize the data - only keep valid entries
+          this.trackingData = {};
+          let validCount = 0;
+          let invalidCount = 0;
+
+          for (const [key, value] of Object.entries(parsed)) {
+            if (typeof key === 'string' && typeof value === 'number' && !isNaN(value)) {
+              this.trackingData[key] = value;
+              validCount++;
+            } else {
+              invalidCount++;
+            }
+          }
+
+          console.log(`Loaded ${validCount} tracked items`);
+          if (invalidCount > 0) {
+            console.warn(`Filtered out ${invalidCount} invalid entries`);
+          }
+        } catch (parseError) {
+          // JSON parsing failed - likely corrupted data
+          console.error('Failed to parse tracking data (corrupted JSON):', parseError);
+          console.warn('⚠️  Tracking data is corrupted! Starting fresh to recover...');
+          console.warn('This means some items may be re-posted, but the system will recover.');
+          this.trackingData = {};
+        }
       } else {
         console.log('No tracking data found, starting fresh');
         this.trackingData = {};
